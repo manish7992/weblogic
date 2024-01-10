@@ -1,0 +1,24 @@
+stages:
+  - build
+  - deploy
+
+build_war:
+  stage: build
+  image: maven:3.8.4-jdk-11  # Using Maven for building artifacts
+  script:
+    - mvn clean package  # Execute Maven build commands
+  artifacts:
+    paths:
+      - target/*.war  # Define the path to the generated WAR file
+  only:
+    - main 
+deploy_to_weblogic:
+  stage: deploy
+  tags:
+    - ubuntu-web
+  script:
+    - export WEBLOGIC_USERNAME="your_weblogic_username"
+    - export WEBLOGIC_PASSWORD="your_weblogic_password"
+    - export WEBLOGIC_ADMIN_URL="t3://your_weblogic_admin_server:port"
+    - export WAR_FILE_PATH="target/*.war"
+    - java weblogic.Deployer -adminurl $WEBLOGIC_ADMIN_URL -username $WEBLOGIC_USERNAME -password $WEBLOGIC_PASSWORD -deploy $WAR_FILE_PATH
